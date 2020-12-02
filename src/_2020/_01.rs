@@ -41,7 +41,7 @@ impl Report {
     }
 
 
-    fn find_and_multiply(&self) -> i32 {
+    pub fn find_and_multiply(&self) -> i32 {
         for i in 0..self.expenses.len() {
             let a = self.expenses[i];
             let b = 2020 - a;

@@ -1,2 +1,2 @@
-mod _2019;
-mod _2020;
+pub mod _2019;
+pub mod _2020;
