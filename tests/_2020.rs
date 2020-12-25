@@ -69,7 +69,22 @@ fn _2020_03_part_one () {
     let filename = "inputs/_2020/_03/1.txt";
     let input = fs::read_to_string(filename).unwrap();
     let grid = Grid::from_str(input.trim());
-    let result = grid.count_trees();
+    let result = grid.count_trees(1, 3);
 
     println!("{}", result);
+}
+
+#[test]
+fn _2020_03_part_two () {
+    let filename = "inputs/_2020/_03/1.txt";
+    let input = fs::read_to_string(filename).unwrap();
+    let grid = Grid::from_str(input.trim());
+
+    let r1 = grid.count_trees(1, 1);
+    let r2 = grid.count_trees(1, 3);
+    let r3 = grid.count_trees(1, 5);
+    let r4 = grid.count_trees(1, 7);
+    let r5 = grid.count_trees(2, 1);
+
+    println!("{}", r1 * r2 * r3 * r4 * r5)
 }

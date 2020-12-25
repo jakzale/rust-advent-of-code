@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 #[derive(Debug)]
-pub struct Row {
+struct Row {
     width: usize,
     trees: HashSet<usize>,
 }
@@ -62,9 +62,13 @@ impl Grid {
         return self.rows[row].is_tree(column);
     }
 
-    pub fn count_trees(self: &Self) -> usize {
-        (1..self.height())
-            .map(|x| (x, x * 3))
+    pub fn count_trees(self: &Self, row_step: usize, col_step: usize) -> usize {
+        let row_iter = (0..self.height()).step_by(row_step);
+        let col_iter = (0..).step_by(col_step);
+
+        row_iter
+            .zip(col_iter)
+            .skip(1)
             .map(|(r,c)| self.is_tree(r,c))
             .map(|t| if t { 1 } else { 0 })
             .sum()
@@ -133,6 +137,6 @@ mod tests {
         assert_eq!(true,  grid.is_tree(9,  27));
         assert_eq!(true,  grid.is_tree(10, 30));
 
-        assert_eq!(7, grid.count_trees());
+        assert_eq!(7, grid.count_trees(1, 3));
     }
 }
