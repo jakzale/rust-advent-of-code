@@ -1,15 +1,14 @@
 // 2020 day 04
 use std::collections::HashMap;
-use std::iter::IntoIterator;
 
 
 #[derive(Debug)]
-struct Passport<'a> {
-    contents: HashMap<&'static str, &'a str>,
+struct Passport {
+    contents: HashMap<&'static str, String>,
 }
 
 
-impl<'a> Passport<'a> {
+impl Passport {
     const BYR: &'static str = "byr";
     const IYR: &'static str = "iyr";
     const EYR: &'static str = "eyr";
@@ -41,7 +40,7 @@ impl<'a> Passport<'a> {
     ];
 
     // Check if we are dealing with a valid field label
-    fn to_field<'b>(x: &'b str) -> &'static str {
+    fn to_field(x: &str) -> &'static str {
         let all_slice: &[&'static str] = &Self::ALL;
         let i = all_slice.binary_search(&x).unwrap();
         return Self::ALL[i];
@@ -56,25 +55,20 @@ impl<'a> Passport<'a> {
         Self::REQUIRED.iter().all(|f| self.has_field(f))
     }
 
-    pub fn from_iter<T>(vals: T) -> Self
-    where
-        T: IntoIterator<Item = &'a (&'a str, &'a str)>
-    {
-        let contents = vals.into_iter().map(|(f, v)| (Self::to_field(f), *v)).collect();
-        Passport {
-            contents
-        }
-    }
-
-    pub fn from_str(s: &'a str) -> Self {
-        let vals = s.split_whitespace()
+    pub fn from_str(s: &str) -> Self {
+        let contents: HashMap<&'static str, String> = s.split_whitespace()
             .filter(|x| !x.is_empty())
             .map(|x| {
                 let mut it = x.split(":");
-                return (it.next().unwrap(), it.next().unwrap())
-            });
+                let field = Self::to_field(it.next().unwrap());
+                let value = it.next().unwrap().to_owned();
+                return (field, value)
+            })
+            .collect();
 
-        return Self::from_iter(vals);
+        Passport {
+            contents
+        }
     }
 
 }
@@ -83,16 +77,46 @@ impl<'a> Passport<'a> {
 mod tests {
     use super::*;
 
+    // #[test]
+    // #[should_panic]
+    // fn test_wrong_field() {
+    //     let _p = Passport::from_iter(&[("a", "1990")]);
+    // }
+    //
+    // #[test]
+    // fn test() {
+    //     let p = Passport::from_iter(&[("byr", "1990")]);
+    //     println!("{:?}", p);
+    // }
+
     #[test]
     #[should_panic]
     fn test_wrong_field() {
-        let _p = Passport::from_iter(&[("a", "1990")]);
+        let _p = Passport::from_str("foo:bar");
     }
 
     #[test]
     fn test() {
-        let p = Passport::from_iter(&[("byr", "1990")]);
+        let p = Passport::from_str("byr:1990");
         println!("{:?}", p);
+    }
+
+    #[test]
+    fn test_valid_passport() {
+        let p = Passport::from_str("ecl:gry pid:860033327 eyr:2020 hcl:#fffffd\nbyr:1937 iyr:2017 cid:147 hgt:183cm");
+        assert_eq!(true, p.is_valid());
+    }
+
+    #[test]
+    fn test_invalid_passport() {
+        let p = Passport::from_str("iyr:2013 ecl:amb cid:350 eyr:2023 pid:028048884\nhcl:#cfa07d byr:1929");
+        assert_eq!(false, p.is_valid());
+    }
+
+    #[test]
+    fn test_valid_passport2() {
+        let p = Passport::from_str("hcl:#ae17e1 iyr:2013\neyr:2024\necl:brn pid:760753108 byr:1931\nhgt:179cm");
+        assert_eq!(true, p.is_valid());
     }
 
 }
